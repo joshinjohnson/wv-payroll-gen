@@ -1,0 +1,11 @@
+SERVER_ADDRESS: :8088
+AUTH_TOKEN: 
+LOG_MODE: DEBUG
+DB_CONFIG:
+  USER: user
+  PASSWORD: pass@123
+  HOSTNAME: db
+  PORT: 5432
+  DB_NAME: payroll
+  SCHEMA_NAME: public
+  SSL_MODE: disable

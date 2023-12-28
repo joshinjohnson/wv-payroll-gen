@@ -1,0 +1,132 @@
+openapi: 3.0.0
+info:
+  title: Employee Payroll API
+  version: 1.0.0
+paths:
+  /upload:
+    post:
+      summary: Upload a CSV file with employee work hours data
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/InvalidCSV'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /report:
+    get:
+      summary: Retrieve a payroll report for employees
+      # parameters:
+      #   - name: payPeriod
+      #     in: query
+      #     description: Pay period for the report
+      #     required: false
+      #     schema:
+      #       type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayrollReport'
+          description: OK
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  schemas:
+    WorkLogInput:
+      properties:
+        employee_id:
+          format: uint64
+          type: integer
+        log_hours:
+          format: uint64
+          type: integer
+        log_job_group:
+          enum:
+            - A
+            - B
+          type: string
+        log_date:
+          format: date
+          type: string
+      type: object
+      required:
+        - employee_id
+        - log_hours
+        - log_job_group
+        - log_date
+    WorkerPayrollBiWeek:
+      properties:
+        employee_id:
+          format: uint64
+          type: integer
+        pay_period:
+          type: object
+          properties:
+            start_date:
+              format: date
+              type: string
+            end_date:
+              format: date
+              type: string
+        amount_paid:
+          type: string
+      type: object
+      required:
+        - employee_id
+        - pay_period
+        - amount_paid
+    PayrollReport:
+      type: object
+      properties:
+        employee_reports:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkerPayrollBiWeek'
+      required:
+        - employee_reports
+    Ok:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+  responses:
+    Success:
+      description: Ok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Ok'
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InvalidCSV:
+      description: Invalid JSON
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
